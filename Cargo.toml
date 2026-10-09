@@ -1,0 +1,32 @@
+[package]
+name = "diesis"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+description = "Rust SDK for Diesis: system contract bindings, addresses, and chain data"
+license = "MIT"
+repository = "https://github.com/0xDiesis/diesis-rs"
+readme = "README.md"
+keywords = ["diesis", "ethereum", "alloy", "evm", "sdk"]
+categories = ["cryptography::cryptocurrencies"]
+publish = false
+include = ["/src", "/canonical.json", "/README.md", "/LICENSE"]
+
+[dependencies]
+alloy = { version = "~2.5.0", default-features = false, features = [
+  "std",
+  "sol-types",
+  "contract",
+  "json-abi",
+  "serde",
+] }
+serde = { version = "~1.0.228", default-features = false, features = ["std", "derive"] }
+
+[dev-dependencies]
+alloy = { version = "~2.5.0", default-features = false, features = [
+  "std",
+  "reqwest",
+  "provider-http",
+  "signer-local",
+] }
+serde_json = "~1.0.140"
