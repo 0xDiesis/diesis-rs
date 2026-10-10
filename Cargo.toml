@@ -2,7 +2,7 @@
 name = "diesis"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.95"
+rust-version = "1.99"
 description = "Rust SDK for Diesis: system contract bindings, addresses, and chain data"
 license = "MIT"
 repository = "https://github.com/0xDiesis/diesis-rs"

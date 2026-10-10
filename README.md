@@ -17,7 +17,7 @@ addresses and chain data you need to reach them. Each contract is an
 [alloy](https://alloy.rs) `sol!` contract, so calls, events, and errors work
 with your existing providers and signers.
 
-Chain ID `1980` · Token **DS** · Bindings **alloy 2.5** · Rust **1.95+**
+Chain ID `1980` · Token **DS** · Bindings **alloy 2.5** · Rust **1.99+**
 
 _Greek δίεσις: the smallest interval in music.<br>Diesis aims for the smallest interval between blocks._
 
