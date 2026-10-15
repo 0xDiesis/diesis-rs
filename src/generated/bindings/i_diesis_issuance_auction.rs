@@ -5,28 +5,19 @@
 #![allow(clippy::too_many_arguments)]
 
 /// JSON ABI of the `IDiesisIssuanceAuction` contract.
-pub const I_DIESIS_ISSUANCE_AUCTION_ABI: &str = r#"[{"inputs":[{"components":[{"internalType":"bytes32","name":"marketId","type":"bytes32"},{"internalType":"address","name":"baseAsset","type":"address"},{"internalType":"address","name":"quoteAsset","type":"address"},{"internalType":"bytes32","name":"evidenceHash","type":"bytes32"},{"internalType":"uint8","name":"pricingVersion","type":"uint8"},{"internalType":"uint64","name":"priceDenominator","type":"uint64"}],"internalType":"struct IDiesisIssuanceAuction.PricedPerpRegistration","name":"registration","type":"tuple"}],"name":"bidPricedPerpListing","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"bytes32","name":"marketId","type":"bytes32"},{"internalType":"address","name":"baseAsset","type":"address"},{"internalType":"address","name":"quoteAsset","type":"address"},{"internalType":"bytes32","name":"evidenceHash","type":"bytes32"}],"internalType":"struct IDiesisIssuanceAuction.UnpricedPerpRegistration","name":"registration","type":"tuple"}],"name":"bidUnpricedPerpListing","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentPerpListingPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getPerpListingSlot","outputs":[{"components":[{"internalType":"uint64","name":"slotStartBlock","type":"uint64"},{"internalType":"uint64","name":"slotLengthBlocks","type":"uint64"},{"internalType":"uint256","name":"initialPriceUsdc","type":"uint256"},{"internalType":"uint256","name":"winningPriceUsdc","type":"uint256"},{"internalType":"address","name":"currentWinner","type":"address"},{"internalType":"bytes32","name":"registrationDigest","type":"bytes32"}],"internalType":"struct IDiesisIssuanceAuction.PerpListingSlot","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"marketId","type":"bytes32"}],"name":"getPerpRegistrationPricing","outputs":[{"internalType":"uint8","name":"pricingVersion","type":"uint8"},{"internalType":"uint64","name":"priceDenominator","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"settlePerpListing","outputs":[],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bidder","type":"address"},{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":false,"internalType":"bytes32","name":"registrationDigest","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"priceUsdc","type":"uint256"}],"name":"BidAccepted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"bytes32","name":"registrationDigest","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"priceUsdc","type":"uint256"}],"name":"SlotSettled","type":"event"},{"inputs":[],"name":"AuctionNotSettled","type":"error"},{"inputs":[],"name":"InvalidUnpricedPerpRegistration","type":"error"},{"inputs":[],"name":"IssuanceAuctionCallFailed","type":"error"},{"inputs":[],"name":"RegistrationConflict","type":"error"}]"#;
+pub const I_DIESIS_ISSUANCE_AUCTION_ABI: &str = r#"[{"inputs":[{"components":[{"internalType":"bytes32","name":"marketId","type":"bytes32"},{"internalType":"address","name":"baseAsset","type":"address"},{"internalType":"address","name":"quoteAsset","type":"address"},{"internalType":"bytes32","name":"evidenceHash","type":"bytes32"}],"internalType":"struct IDiesisIssuanceAuction.PerpRegistrationV1","name":"registration","type":"tuple"}],"name":"bidPerpListingV1","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentPerpListingPriceV1","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getPerpListingSlotV1","outputs":[{"components":[{"internalType":"uint64","name":"slotStartBlock","type":"uint64"},{"internalType":"uint64","name":"slotLengthBlocks","type":"uint64"},{"internalType":"uint256","name":"initialPriceUsdc","type":"uint256"},{"internalType":"uint256","name":"winningPriceUsdc","type":"uint256"},{"internalType":"address","name":"currentWinner","type":"address"},{"internalType":"bytes32","name":"registrationDigest","type":"bytes32"}],"internalType":"struct IDiesisIssuanceAuction.PerpListingSlotV1","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"settlePerpListingV1","outputs":[],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bidder","type":"address"},{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":false,"internalType":"bytes32","name":"registrationDigest","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"priceUsdc","type":"uint256"}],"name":"BidAccepted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"bytes32","name":"registrationDigest","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"priceUsdc","type":"uint256"}],"name":"SlotSettled","type":"event"},{"inputs":[],"name":"AuctionNotSettled","type":"error"},{"inputs":[],"name":"InvalidPerpRegistrationV1","type":"error"},{"inputs":[],"name":"IssuanceAuctionCallFailed","type":"error"},{"inputs":[],"name":"RegistrationConflict","type":"error"}]"#;
 
 alloy::sol! {
     #[sol(rpc, abi, all_derives, extra_derives(serde::Serialize, serde::Deserialize))]
     contract IDiesisIssuanceAuction {
-        struct PricedPerpRegistration {
-            bytes32 marketId;
-            address baseAsset;
-            address quoteAsset;
-            bytes32 evidenceHash;
-            uint8 pricingVersion;
-            uint64 priceDenominator;
-        }
-
-        struct UnpricedPerpRegistration {
+        struct PerpRegistrationV1 {
             bytes32 marketId;
             address baseAsset;
             address quoteAsset;
             bytes32 evidenceHash;
         }
 
-        struct PerpListingSlot {
+        struct PerpListingSlotV1 {
             uint64 slotStartBlock;
             uint64 slotLengthBlocks;
             uint256 initialPriceUsdc;
@@ -37,7 +28,7 @@ alloy::sol! {
 
         error AuctionNotSettled();
 
-        error InvalidUnpricedPerpRegistration();
+        error InvalidPerpRegistrationV1();
 
         error IssuanceAuctionCallFailed();
 
@@ -47,30 +38,20 @@ alloy::sol! {
 
         event SlotSettled(bytes32 indexed marketId, address indexed winner, bytes32 registrationDigest, uint256 priceUsdc);
 
-        /// Place a canonical-USDC bid bound to immutable priced units.
-        ///
-        /// The native runtime debits msg.sender and retains the accepted      identity preimage. Successful admission and identical retries      return no data, as with bidUnpricedPerpListing.
-        function bidPricedPerpListing(PricedPerpRegistration calldata registration) external;
-
         /// Place a canonical-USDC bid bound to one perpetual registration.
         ///
         /// The native runtime debits USDC; this selector is intentionally not      payable and accepts no caller-supplied winner.
-        function bidUnpricedPerpListing(UnpricedPerpRegistration calldata registration) external;
+        function bidPerpListingV1(PerpRegistrationV1 calldata registration) external;
 
         /// Return the fixed V1 perpetual-listing price in USDC units.
-        function currentPerpListingPrice() external view returns (uint256);
+        function currentPerpListingPriceV1() external view returns (uint256);
 
         /// Read the active perpetual-listing slot and registration digest.
-        function getPerpListingSlot() external view returns (PerpListingSlot memory);
-
-        /// Read the authenticated units retained by an accepted bid.
-        ///
-        /// A proved legacy registration returns zero and one. Unknown records,      absent identity preimages, or deleted priced metadata revert.
-        function getPerpRegistrationPricing(bytes32 marketId) external view returns (uint8 pricingVersion, uint64 priceDenominator);
+        function getPerpListingSlotV1() external view returns (PerpListingSlotV1 memory);
 
         /// Settle the elapsed perpetual-listing slot.
         ///
         /// Native-runtime only: settlement atomically routes the accepted USDC      price (70% burn, 20% treasury, 10% validator rewards) and records      the winning registration with `DiesisPerpDeploy`. This selector is      ABI-visible for system dispatch but intentionally not forwarded by      `DiesisIssuanceAuction`. It returns no data; after the first due      transition, every repeat is a successful no-op over persisted state.
-        function settlePerpListing() external;
+        function settlePerpListingV1() external;
     }
 }

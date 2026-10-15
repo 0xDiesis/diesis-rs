@@ -5,7 +5,7 @@
 #![allow(clippy::too_many_arguments)]
 
 /// JSON ABI of the `IDiesisMargin` contract.
-pub const I_DIESIS_MARGIN_ABI: &str = r#"[{"inputs":[{"internalType":"bytes32","name":"marketId","type":"bytes32"}],"name":"resolvePerpProtection","outputs":[{"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"deleveraged","type":"address"},{"indexed":true,"internalType":"address","name":"counterparty","type":"address"},{"indexed":false,"internalType":"uint256","name":"size","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"AutoDeleverage","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"trader","type":"address"},{"indexed":false,"internalType":"uint256","name":"size","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"penalty","type":"uint256"}],"name":"Liquidation","type":"event"}]"#;
+pub const I_DIESIS_MARGIN_ABI: &str = r#"[{"inputs":[{"internalType":"bytes32","name":"marketId","type":"bytes32"}],"name":"resolvePerpProtectionV1","outputs":[{"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"deleveraged","type":"address"},{"indexed":true,"internalType":"address","name":"counterparty","type":"address"},{"indexed":false,"internalType":"uint256","name":"size","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"AutoDeleverage","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"marketId","type":"bytes32"},{"indexed":true,"internalType":"address","name":"trader","type":"address"},{"indexed":false,"internalType":"uint256","name":"size","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"penalty","type":"uint256"}],"name":"Liquidation","type":"event"}]"#;
 
 alloy::sol! {
     #[sol(rpc, abi, all_derives, extra_derives(serde::Serialize, serde::Deserialize))]
@@ -15,6 +15,6 @@ alloy::sol! {
         event Liquidation(bytes32 indexed marketId, address indexed trader, uint256 size, uint256 price, uint256 penalty);
 
         /// System-owned canonical frontier resolution. External callers are rejected.
-        function resolvePerpProtection(bytes32 marketId) external returns (bytes32 transactionId);
+        function resolvePerpProtectionV1(bytes32 marketId) external returns (bytes32 transactionId);
     }
 }
