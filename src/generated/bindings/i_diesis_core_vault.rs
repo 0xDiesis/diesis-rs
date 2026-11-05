@@ -58,9 +58,9 @@ alloy::sol! {
         /// Cancel a previously queued exit at `queueIndex` in the         FIFO list. Returns the locked shares to the caller. Only         the owner of the request may cancel.
         function cancelExit(uint8 id, uint256 queueIndex) external;
 
-        /// Deposit `amount` of the strategy's quote asset and mint         proportional shares. Reverts if the strategy is paused.
+        /// Deposit `amount` of the strategy's quote asset and mint         proportional shares. Reverts if the strategy is paused.      payment routing; the canonical implementation accepts native      DS for DS-denominated sub-vaults and bridges for others.
         ///
-        /// `msg.value` semantics depend on the precompile's chosen      payment routing; the canonical implementation accepts native      DS for DS-denominated sub-vaults and bridges for others.
+        /// `msg.value` semantics depend on the precompile's chosen
         function deposit(uint8 id, uint256 amount) external payable;
 
         /// Execute a previously proposed risk-parameter change once         the timelock has elapsed. Anyone can call.
@@ -69,11 +69,11 @@ alloy::sol! {
         /// Snapshot of the queued exits for a strategy, in FIFO order.
         function exitQueue(uint8 id) external view returns (ExitRequest[] memory);
 
-        /// Get the NAV checkpoint stored at `blockNumber`, if any.
+        /// Get the NAV checkpoint stored at `blockNumber`, if any.         checkpoint exists at that block.
         ///
         /// # Returns
         ///
-        /// - `cp`: The checkpoint; `cp.blockNumber == 0` indicates no         checkpoint exists at that block.
+        /// - `cp`: The checkpoint; `cp.blockNumber == 0` indicates no
         function getCheckpoint(uint8 id, uint64 blockNumber) external view returns (NavCheckpoint memory cp);
 
         /// Read the currently pre-committed risk parameters.

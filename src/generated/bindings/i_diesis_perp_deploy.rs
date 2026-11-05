@@ -70,34 +70,34 @@ alloy::sol! {
 
         event Slashed(bytes32 indexed marketId, uint8 reason);
 
-        /// Apply one consensus-attested perpetual-market abandonment transition.
+        /// Apply one consensus-attested perpetual-market abandonment transition.      only from the system caller (`address(0)`).
         ///
-        /// Native-runtime only: the dispatcher accepts this fixed-width selector      only from the system caller (`address(0)`).
+        /// Native-runtime only: the dispatcher accepts this fixed-width selector
         function applyPerpAbandonmentV1(bytes32 marketId, bytes32 parentHash, uint64 blockNumber, uint64 policyEpoch, bytes32 policyHash, uint64 windowStart, uint64 windowEnd, uint256 filledVolume, uint256 operatorFees, uint64 lastMetadataUpdate, bytes32 inputHash, uint64 committeeEpoch, bytes32 committeeIdentity, uint64 quorumPower, uint64 attestingPower, uint16 voterCount, bytes32 evidenceHash) external;
 
-        /// Apply a canonical system-owned operator-bond slash.
+        /// Apply a canonical system-owned operator-bond slash.      the system caller (`address(0)`). It is ABI-visible but intentionally      not forwarded by `DiesisPerpDeploy`.
         ///
-        /// Native-runtime only: the dispatcher accepts this selector only from      the system caller (`address(0)`). It is ABI-visible but intentionally      not forwarded by `DiesisPerpDeploy`.
+        /// Native-runtime only: the dispatcher accepts this selector only from
         function applySlash(bytes32 marketId, uint8 reason) external;
 
-        /// Sole production deployment path for a settled slot.
+        /// Sole production deployment path for a settled slot.      dynamic fields before ABI allocation and requires their canonical      combined commitment to equal the auction registration evidence.      The fields are opaque bytes: this version does not parse them or      validate the signature bytes as attestations.
         ///
-        /// Caller must be the recorded operator. The runtime validates all      dynamic fields before ABI allocation and requires their canonical      combined commitment to equal the auction registration evidence.      The fields are opaque bytes: this version does not parse them or      validate the signature bytes as attestations.
+        /// Caller must be the recorded operator. The runtime validates all
         function deployPerp(bytes32 slotId, bytes32 marketId, bytes calldata sourceList, bytes calldata metadata, bytes calldata signatures) external returns (bytes32);
 
-        /// Process at most one activation expiry and one completion expiry         from separate bounded canonical queues.
+        /// Process at most one activation expiry and one completion expiry         from separate bounded canonical queues.      block-start maintenance and intentionally omitted from the facade.
         ///
-        /// Native-runtime only and replay-safe. It is invoked by deterministic      block-start maintenance and intentionally omitted from the facade.
+        /// Native-runtime only and replay-safe. It is invoked by deterministic
         function expireNextUnactivatedPerpV1() external;
 
-        /// Expire one incomplete auction deployment after its deadline.
+        /// Expire one incomplete auction deployment after its deadline.      cooling/live deployment that never completed canonical market      initialization. Missing bonds close without slashing; a posted bond      is atomically slashed before the deployment record closes.
         ///
-        /// Native-runtime only. This covers both an untouched winner and a      cooling/live deployment that never completed canonical market      initialization. Missing bonds close without slashing; a posted bond      is atomically slashed before the deployment record closes.
+        /// Native-runtime only. This covers both an untouched winner and a
         function expireUnactivatedPerpV1(bytes32 marketId) external;
 
-        /// Finalize close on a market whose `Delisting` or `Slashed`         window has elapsed. Transitions to `Closed`.
+        /// Finalize close on a market whose `Delisting` or `Slashed`         window has elapsed. Transitions to `Closed`.      closed, or with `NoSuchMarket` if `marketId` is unknown.
         ///
-        /// Reverts with `InvalidStateTransition` if the window has not      closed, or with `NoSuchMarket` if `marketId` is unknown.
+        /// Reverts with `InvalidStateTransition` if the window has not
         function finalizeClose(bytes32 marketId) external;
 
         /// Apply one due, system-owned perpetual policy proposal.
@@ -114,27 +114,27 @@ alloy::sol! {
         /// Read the accrued operator fee-router balance.
         function getOperatorBalance(address operator) external view returns (uint256);
 
-        /// Read the active perpetual policy through the native precompile.
+        /// Read the active perpetual policy through the native precompile.      read implementation remains deferred to X4b M2.
         ///
-        /// M0 freezes the selector and structured return schema. Native policy      read implementation remains deferred to X4b M2.
+        /// M0 freezes the selector and structured return schema. Native policy
         function getPerpPolicyV1(bytes32 marketId) external view returns (PerpPolicyV1 memory policy, MetadataKeysetV1 memory keyset);
 
         /// Materialize a live auction deployment into the canonical market         and clearing registries. `initialMark` is an unscaled tick price.
         function initializePerpMarketV1(address baseToken, address quoteToken, uint64 tickSize, uint64 lotSize, uint256 maxOpenInterest, uint256 initialMark, uint8 maxLeverage) external returns (bytes32 marketId);
 
-        /// Atomically initialize the market and its first policy/keyset.
+        /// Atomically initialize the market and its first policy/keyset.      registry writes, and idempotence are introduced by X4b M2.
         ///
-        /// This freezes the public V2 wire contract only. Native validation,      registry writes, and idempotence are introduced by X4b M2.
+        /// This freezes the public V2 wire contract only. Native validation,
         function initializePerpMarketV2(address baseToken, address quoteToken, uint64 tickSize, uint64 lotSize, uint256 maxOpenInterest, uint256 initialMark, PerpPolicyV1 calldata policy, MetadataKeysetV1 calldata keyset) external returns (bytes32 marketId);
 
-        /// Operator-initiated voluntary delist. Opens a 30-day backstop         claim window before the bond becomes release-eligible.
+        /// Operator-initiated voluntary delist. Opens a 30-day backstop         claim window before the bond becomes release-eligible.      or with `NoSuchMarket` if `marketId` is unknown.
         ///
-        /// Reverts with `InvalidStateTransition` if the market is not `Live`,      or with `NoSuchMarket` if `marketId` is unknown.
+        /// Reverts with `InvalidStateTransition` if the market is not `Live`,
         function initiateDelist(bytes32 marketId) external;
 
-        /// Advance one bounded step of market-close preparation.
+        /// Advance one bounded step of market-close preparation.      and closes or transfers residual positions in restart-safe chunks,      charging a hard bound before mutation. Progress is persisted to the      canonical close cursor so repeated calls resume deterministically.      A `Slashed` market may be progressed permissionlessly because no      caller-controlled economic transition remains after slashing.      `finalizeClose` may only succeed once this returns `true`. Later      tasks implement the continuation; this freezes the release selector      and bounded argument layout.         market may be finalized.
         ///
-        /// Cancels open orders with exact reserve release, settles funding,      and closes or transfers residual positions in restart-safe chunks,      charging a hard bound before mutation. Progress is persisted to the      canonical close cursor so repeated calls resume deterministically.      A `Slashed` market may be progressed permissionlessly because no      caller-controlled economic transition remains after slashing.      `finalizeClose` may only succeed once this returns `true`. Later      tasks implement the continuation; this freezes the release selector      and bounded argument layout.
+        /// Cancels open orders with exact reserve release, settles funding,
         ///
         /// # Arguments
         ///
@@ -144,22 +144,22 @@ alloy::sol! {
         ///
         /// # Returns
         ///
-        /// - `readyToFinalize`: True once no dependent state remains and the         market may be finalized.
+        /// - `readyToFinalize`: True once no dependent state remains and the
         function preparePerpMarketCloseV1(bytes32 marketId, uint16 maxOrders, uint16 maxPositions) external returns (bool readyToFinalize);
 
-        /// Promote an elapsed cooling market to `Live`.
+        /// Promote an elapsed cooling market to `Live`.      its cooling deadline, and never changes the recorded operator.
         ///
-        /// Permissionless: this only materializes the stored transition after      its cooling deadline, and never changes the recorded operator.
+        /// Permissionless: this only materializes the stored transition after
         function promoteToLive(bytes32 marketId) external;
 
-        /// Propose a timelocked, current-keyset-attested policy update.
+        /// Propose a timelocked, current-keyset-attested policy update.      X4b M2; this packet intentionally freezes only the ABI.
         ///
-        /// Signature validation and timelock persistence are introduced by      X4b M2; this packet intentionally freezes only the ABI.
+        /// Signature validation and timelock persistence are introduced by
         function proposePerpPolicyV1(bytes32 marketId, uint64 expectedRevision, uint64 expectedKeysetEpoch, uint16 backstopTopupBps, RiskTierInputV1[] calldata tiers, address[] calldata nextSigners, uint8 nextThreshold, MetadataSignatureV1[] calldata signatures) external returns (bytes32 proposalId, uint64 executeAfter);
 
-        /// Record a settled auction registration before operator actions.
+        /// Record a settled auction registration before operator actions.      the system caller (`address(0)`). It is declared for ABI/indexer      parity but intentionally not forwarded by `DiesisPerpDeploy`.      An identical replay is a no-op; any commitment conflict reverts.
         ///
-        /// Native-runtime only: the dispatcher accepts this selector only from      the system caller (`address(0)`). It is declared for ABI/indexer      parity but intentionally not forwarded by `DiesisPerpDeploy`.      An identical replay is a no-op; any commitment conflict reverts.
+        /// Native-runtime only: the dispatcher accepts this selector only from
         function recordAuctionWin(bytes32 marketId, address operator, bytes32 registrationDigest, bytes32 evidenceHash) external;
     }
 }

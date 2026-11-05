@@ -112,13 +112,32 @@ fn embedded_abis_match_artifacts() {
         let artifact = out.join(format!("{name}.sol/{name}.json"));
         let artifact: serde_json::Value =
             serde_json::from_str(&std::fs::read_to_string(&artifact).unwrap()).unwrap();
-        let expected: JsonAbi = serde_json::from_value(artifact["abi"].clone()).unwrap();
+        let mut expected: JsonAbi = serde_json::from_value(artifact["abi"].clone()).unwrap();
+        for overloads in expected.functions.values_mut() {
+            overloads.sort_by_key(|function| function.selector());
+        }
         let embedded: JsonAbi = serde_json::from_str(json).unwrap();
         assert_eq!(
             embedded, expected,
             "{name} is stale, run scripts/generate.py"
         );
     }
+}
+
+#[test]
+fn overload_aliases_keep_their_existing_selectors() {
+    assert_eq!(
+        IDiesisPosition::safeTransferFrom_0Call::SELECTOR,
+        [0x42, 0x84, 0x2e, 0x0e]
+    );
+    assert_eq!(
+        IDiesisNameVerifier::attestations_0Call::SELECTOR,
+        [0x92, 0xab, 0xd1, 0x7b]
+    );
+    assert_eq!(
+        DiesisPublicResolver::setAddr_0Call::SELECTOR,
+        [0x8b, 0x95, 0xdd, 0x71]
+    );
 }
 
 #[test]

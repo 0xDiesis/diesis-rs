@@ -23,7 +23,9 @@ alloy::sol! {
         /// System-only. Market must exist and `referencePrice` must be nonzero.
         function checkCircuitBreaker(bytes32 marketId, uint256 currentPrice, uint256 referencePrice, uint256 thresholdBps) external returns (uint256 tripped);
 
-        /// Legacy provisioning requires the current Config owner. Public issuance uses `deployTokenAndSpotBook`. `bond`, when nonzero, is deducted from the creator's WDS settlement balance. Reverts after the append-only 256-market ordinal namespace is full.
+        /// uses `deployTokenAndSpotBook`. `bond`, when nonzero, is deducted from the creator's WDS settlement balance. Reverts after the append-only 256-market ordinal namespace is full.
+        ///
+        /// Legacy provisioning requires the current Config owner. Public issuance
         function createSpotMarket(address baseToken, address quoteToken, uint64 tickSize, uint64 lotSize, uint256 bond) external returns (bytes32 marketId);
 
         /// Deploys a token through the factory and creates its USDC spot market atomically.

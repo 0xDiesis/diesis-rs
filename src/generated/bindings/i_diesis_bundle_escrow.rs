@@ -45,9 +45,9 @@ alloy::sol! {
 
         event Withdrawn(address indexed account, uint256 amount);
 
-        /// Cancel a reservation and credit the full locked amount to the payer.
+        /// Cancel a reservation and credit the full locked amount to the payer.      or terminalized before settlement. Exactly-once via `settled`.
         ///
-        /// Node-only (`msg.sender == address(0)`). Used when a bundle is rejected      or terminalized before settlement. Exactly-once via `settled`.
+        /// Node-only (`msg.sender == address(0)`). Used when a bundle is rejected
         ///
         /// # Arguments
         ///
@@ -63,9 +63,9 @@ alloy::sol! {
         /// Claimable native balance credited to `account`.
         function claimable(address account) external view returns (uint256);
 
-        /// Finalize a reservation after the member outcome is known.
+        /// Finalize a reservation after the member outcome is known.      committed builder payment and the payer the capped skipped-work refund      plus the unearned reserve. Purely mutates claimable balances with      saturating arithmetic, so it can never revert on hostile terms or a      hostile recipient. Exactly-once via the `settled` guard.
         ///
-        /// Node-only (`msg.sender == address(0)`). Credits `beneficiary` the      committed builder payment and the payer the capped skipped-work refund      plus the unearned reserve. Purely mutates claimable balances with      saturating arithmetic, so it can never revert on hostile terms or a      hostile recipient. Exactly-once via the `settled` guard.
+        /// Node-only (`msg.sender == address(0)`). Credits `beneficiary` the
         ///
         /// # Arguments
         ///
@@ -82,9 +82,9 @@ alloy::sol! {
         /// - `unearnedReserve`: Unused refund reserve credited to the payer.
         function finalizeBundle(address payer, bytes32 planHash, uint256 escrowNonce, uint256 skippedGas, address beneficiary) external returns (uint256 builderPaid, uint256 refunded, uint256 unearnedReserve);
 
-        /// Payer-initiated reclaim of an expired, unsettled reservation.
+        /// Payer-initiated reclaim of an expired, unsettled reservation.      the committed expiry has passed. Credits the payer the full locked      amount. Exactly-once via `settled`.
         ///
-        /// Callable only by the reservation's payer (`msg.sender`), and only once      the committed expiry has passed. Credits the payer the full locked      amount. Exactly-once via `settled`.
+        /// Callable only by the reservation's payer (`msg.sender`), and only once
         ///
         /// # Arguments
         ///
@@ -99,9 +99,9 @@ alloy::sol! {
         /// Read the reservation for `(payer, planHash, escrowNonce)`.
         function reservationOf(address payer, bytes32 planHash, uint256 escrowNonce) external view returns (Reservation memory);
 
-        /// Lock `maximumBuilderPayment + maximumRefund` for a bundle plan.
+        /// Lock `maximumBuilderPayment + maximumRefund` for a bundle plan.      funded with exactly `maximumBuilderPayment + maximumRefund` native      wei. The reservation is keyed by `(msg.sender, planHash, escrowNonce)`;      a live reservation for that triple rejects nonce replay.        and plan hash.
         ///
-        /// Called by the payer as the bundle's reservation transaction. Must be      funded with exactly `maximumBuilderPayment + maximumRefund` native      wei. The reservation is keyed by `(msg.sender, planHash, escrowNonce)`;      a live reservation for that triple rejects nonce replay.
+        /// Called by the payer as the bundle's reservation transaction. Must be
         ///
         /// # Arguments
         ///
@@ -109,7 +109,7 @@ alloy::sol! {
         /// - `maximumBuilderPayment`: Committed builder payment.
         /// - `refundGasPrice`: Refund price per skipped gas unit.
         /// - `maximumRefund`: Committed refund ceiling.
-        /// - `escrowNonce`: Reservation nonce keying the slot alongside the payer        and plan hash.
+        /// - `escrowNonce`: Reservation nonce keying the slot alongside the payer
         /// - `expiry`: Committed plan expiry (unix seconds).
         ///
         /// # Returns
@@ -117,9 +117,9 @@ alloy::sol! {
         /// - `reservedTotal`: The total native wei locked.
         function reserveBundle(bytes32 planHash, uint256 maximumBuilderPayment, uint256 refundGasPrice, uint256 maximumRefund, uint256 escrowNonce, uint64 expiry) external payable returns (uint256 reservedTotal);
 
-        /// Withdraw the caller's accumulated claimable balance.
+        /// Withdraw the caller's accumulated claimable balance.      (checks-effects-interactions) and is reentrancy-guarded. A caller that      reverts on receipt only griefs itself; settlement already happened.
         ///
-        /// The single native-transfer exit. Zeroes the balance before transfer      (checks-effects-interactions) and is reentrancy-guarded. A caller that      reverts on receipt only griefs itself; settlement already happened.
+        /// The single native-transfer exit. Zeroes the balance before transfer
         ///
         /// # Returns
         ///

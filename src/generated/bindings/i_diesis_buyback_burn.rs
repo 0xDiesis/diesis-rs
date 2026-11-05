@@ -37,19 +37,19 @@ alloy::sol! {
         /// Lifetime DS burned across all sources.
         function cumulativeBurnedDs() external view returns (uint256);
 
-        /// Last TWAP-average execution price recorded for `token`.
+        /// Last TWAP-average execution price recorded for `token`.      chunk emission; zero if no chunks have executed yet.
         ///
-        /// DS-quote, oracle scale. Updated incrementally on each successful      chunk emission; zero if no chunks have executed yet.
+        /// DS-quote, oracle scale. Updated incrementally on each successful
         function lastTwapAveragePrice(address token) external view returns (uint256);
 
-        /// Block at which the next TWAP window for `token` opens.
+        /// Block at which the next TWAP window for `token` opens.      block (the earliest block at which a fresh window may begin).      Returns zero when no window has ever been scheduled for `token`.
         ///
-        /// When a window is active, this returns the active window's end      block (the earliest block at which a fresh window may begin).      Returns zero when no window has ever been scheduled for `token`.
+        /// When a window is active, this returns the active window's end
         function nextWindowStartBlock(address token) external view returns (uint64);
 
-        /// Read the pending (non-DS) accumulator for `token`.
+        /// Read the pending (non-DS) accumulator for `token`.      zero for DS.
         ///
-        /// DS deposits burn immediately and never accumulate; this returns      zero for DS.
+        /// DS deposits burn immediately and never accumulate; this returns
         function pendingPurchaseByAsset(address token) external view returns (uint256);
 
         /// Read the current window state, if any.

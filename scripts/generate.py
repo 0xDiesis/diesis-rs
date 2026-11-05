@@ -18,6 +18,8 @@ canonical.json source (default ../diesis-js/canonical.json).
 
 from __future__ import annotations
 
+from typegen_inputs import ordered_artifacts
+
 import argparse
 import filecmp
 import json
@@ -122,26 +124,27 @@ def typegen_path() -> Path:
 def run_typegen(out_dir: Path) -> None:
     """Write abi-typegen's `rust` output, including its mod.rs, into out_dir."""
     typegen = typegen_path()
-    artifacts = contracts_dir() / "out"
+    artifacts = Path(os.environ.get("DIESIS_ARTIFACTS_DIR", contracts_dir() / "out"))
     if not artifacts.is_dir():
         fail(f"contract artifacts not found at {artifacts} (set DIESIS_CONTRACTS_DIR)")
     names = [contract for _, contract, _ in PUBLIC_CONTRACTS]
-    subprocess.run(
-        [
-            str(typegen),
-            "generate",
-            "--artifacts",
-            str(artifacts),
-            "--out",
-            str(out_dir),
-            "--target",
-            "rust",
-            "--contracts",
-            ",".join(names),
-        ],
-        check=True,
-        stdout=subprocess.DEVNULL,
-    )
+    with ordered_artifacts(artifacts, names) as inputs:
+        subprocess.run(
+            [
+                str(typegen),
+                "generate",
+                "--artifacts",
+                str(inputs),
+                "--out",
+                str(out_dir),
+                "--target",
+                "rust",
+                "--contracts",
+                ",".join(names),
+            ],
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
     produced = sorted(p.name for p in out_dir.iterdir())
     expected = sorted([f"{snake_case(name)}.rs" for name in names] + ["mod.rs"])
     if produced != expected:

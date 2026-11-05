@@ -120,17 +120,29 @@ alloy::sol! {
 
         event Withdrawn(uint256 indexed tokenId, uint256 indexed wrId);
 
-        /// Gives permission to `to` to transfer `tokenId` token to another account. The approval is cleared when the token is transferred. Only a single account can be approved at a time, so approving the zero address clears previous approvals. Requirements: - The caller must own the token or be an approved operator. - `tokenId` must exist. Emits an {Approval} event.
+        /// Gives permission to `to` to transfer `tokenId` token to another account.
+        /// \* The approval is cleared when the token is transferred.
+        /// \*
+        /// \* Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - The caller must own the token or be an approved operator.
+        /// \* - `tokenId` must exist.
+        /// \*
+        /// \* Emits an {Approval} event.
+        ///
         function approve(address to, uint256 tokenId) external;
 
         /// Returns the number of tokens in ``owner``'s account.
+        ///
         function balanceOf(address owner) external view returns (uint256 balance);
 
         function claimRewards(uint256 tokenId, address recipient) external;
 
-        /// Create a zero-stake position to receive existing backing on a registered validator.
+        /// Create a zero-stake position to receive existing backing on a registered validator.      Creates the backing staking NFT before the public NFT. Adds no principal or debt.
         ///
-        /// Nonpayable. Inactive validators are allowed; funded delegation remains subject to its active gate.      Creates the backing staking NFT before the public NFT. Adds no principal or debt.
+        /// Nonpayable. Inactive validators are allowed; funded delegation remains subject to its active gate.
         function createRedemptionPosition(uint32 validator) external returns (uint256 tokenId);
 
         function delegate(uint256 tokenId) external payable;
@@ -141,13 +153,21 @@ alloy::sol! {
         /// Return the free (unencumbered) collateral: stakedAmount - totalDebt.
         function freeCollateralOf(uint256 tokenId) external view returns (uint256);
 
-        /// Returns the account approved for `tokenId` token. Requirements: - `tokenId` must exist.
+        /// Returns the account approved for `tokenId` token.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - `tokenId` must exist.
+        ///
         function getApproved(uint256 tokenId) external view returns (address operator);
 
         /// Whether a new record can be added, or the specified existing record can be extended.
         function hasLockCapacity(uint256 tokenId, address manager, bytes32 lockId) external view returns (bool);
 
-        /// Returns if the `operator` is allowed to manage all of the assets of `owner`. See {setApprovalForAll}
+        /// Returns if the `operator` is allowed to manage all of the assets of `owner`.
+        /// \*
+        /// \* See {setApprovalForAll}
+        ///
         function isApprovedForAll(address owner, address operator) external view returns (bool);
 
         function isFunctionApproved(uint256 tokenId, uint8 fn_, address caller) external view returns (bool approved);
@@ -157,9 +177,9 @@ alloy::sol! {
         /// `lockDuration` must be non-zero and must produce a deadline later than the current owner record.
         function lockPosition(uint256 tokenId, uint40 lockDuration) external;
 
-        /// Lock a position on behalf of its owner.
+        /// Lock a position on behalf of its owner.      until their manager removes them; at most `MAX_LOCK_RECORDS` may exist per position.      A zero duration or a deadline that does not strictly extend the same record reverts.
         ///
-        /// Callable by authorized lock managers. Outstanding records remain enumerable after expiry      until their manager removes them; at most `MAX_LOCK_RECORDS` may exist per position.      A zero duration or a deadline that does not strictly extend the same record reverts.
+        /// Callable by authorized lock managers. Outstanding records remain enumerable after expiry
         function lockPositionFor(uint256 tokenId, bytes32 lockId, uint40 lockDuration) external;
 
         /// Return one outstanding lock record by index.
@@ -171,9 +191,9 @@ alloy::sol! {
         /// Return the deadline recorded for one lock identity.
         function lockUntilFor(uint256 tokenId, address manager, bytes32 lockId) external view returns (uint40);
 
-        /// Atomically merge two positions on the same validator.
+        /// Atomically merge two positions on the same validator.      Burns the source NFT.
         ///
-        /// Source must have no debt and not be locked. Uses swapDelegate for atomic re-delegation.      Burns the source NFT.
+        /// Source must have no debt and not be locked. Uses swapDelegate for atomic re-delegation.
         ///
         /// # Arguments
         ///
@@ -187,7 +207,12 @@ alloy::sol! {
 
         function mintShareDebt(uint256 tokenId, uint256 shareDebt) external;
 
-        /// Returns the owner of the `tokenId` token. Requirements: - `tokenId` must exist.
+        /// Returns the owner of the `tokenId` token.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - `tokenId` must exist.
+        ///
         function ownerOf(uint256 tokenId) external view returns (address owner);
 
         function positionInfo(uint256 tokenId) external view returns (PositionInfo memory info);
@@ -203,13 +228,47 @@ alloy::sol! {
 
         function revokeFunctionApproval(uint256 tokenId, uint8 fn_) external;
 
-        /// Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients are aware of the ERC-721 protocol to prevent tokens from being forever locked. Requirements: - `from` cannot be the zero address. - `to` cannot be the zero address. - `tokenId` token must exist and be owned by `from`. - If the caller is not `from`, it must have been allowed to move this token by either {approve} or   {setApprovalForAll}. - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon   a safe transfer. Emits a {Transfer} event.
+        /// Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+        /// \* are aware of the ERC-721 protocol to prevent tokens from being forever locked.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - `from` cannot be the zero address.
+        /// \* - `to` cannot be the zero address.
+        /// \* - `tokenId` token must exist and be owned by `from`.
+        /// \* - If the caller is not `from`, it must have been allowed to move this token by either {approve} or
+        /// \*   {setApprovalForAll}.
+        /// \* - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+        /// \*   a safe transfer.
+        /// \*
+        /// \* Emits a {Transfer} event.
+        ///
         function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
-        /// Safely transfers `tokenId` token from `from` to `to`. Requirements: - `from` cannot be the zero address. - `to` cannot be the zero address. - `tokenId` token must exist and be owned by `from`. - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}. - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon   a safe transfer. Emits a {Transfer} event.
+        /// Safely transfers `tokenId` token from `from` to `to`.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - `from` cannot be the zero address.
+        /// \* - `to` cannot be the zero address.
+        /// \* - `tokenId` token must exist and be owned by `from`.
+        /// \* - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+        /// \* - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+        /// \*   a safe transfer.
+        /// \*
+        /// \* Emits a {Transfer} event.
+        ///
         function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
 
-        /// Approve or remove `operator` as an operator for the caller. Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller. Requirements: - The `operator` cannot be the address zero. Emits an {ApprovalForAll} event.
+        /// Approve or remove `operator` as an operator for the caller.
+        /// \* Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - The `operator` cannot be the address zero.
+        /// \*
+        /// \* Emits an {ApprovalForAll} event.
+        ///
         function setApprovalForAll(address operator, bool approved) external;
 
         function setFunctionApproval(uint256 tokenId, uint8 fn_, address delegatee, uint32 expires, bool revokable) external;
@@ -217,14 +276,14 @@ alloy::sol! {
         /// Return the share debt for a position.
         function shareDebtOf(uint256 tokenId) external view returns (uint256);
 
-        /// Atomically split a position into two on the same validator (no unbonding delay).
+        /// Atomically split a position into two on the same validator (no unbonding delay).        source remainder must be 0 or ≥ MIN\_STAKE).
         ///
         /// Uses swapDelegate for instant re-delegation between positions.
         ///
         /// # Arguments
         ///
         /// - `fromTokenId`: The source position to split from.
-        /// - `splitAmount`: Wei to move to the new position (must be ≥ MIN\_STAKE and ≤ free collateral;        source remainder must be 0 or ≥ MIN\_STAKE).
+        /// - `splitAmount`: Wei to move to the new position (must be ≥ MIN\_STAKE and ≤ free collateral;
         ///
         /// # Returns
         ///
@@ -234,7 +293,13 @@ alloy::sol! {
         /// Return the current staked amount for a position (canonical, self-tracked).
         function stakedAmountOf(uint256 tokenId) external view returns (uint256);
 
-        /// Returns true if this contract implements the interface defined by `interfaceId`. See the corresponding <https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC> section\] to learn more about how these ids are created. This function call must use less than 30 000 gas.
+        /// Returns true if this contract implements the interface defined by
+        /// \* `interfaceId`. See the corresponding
+        /// \* <https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC> section\]
+        /// \* to learn more about how these ids are created.
+        /// \*
+        /// \* This function call must use less than 30 000 gas.
+        ///
         function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
         /// Atomically re-delegate stake from one position to another on the same validator.
@@ -254,7 +319,21 @@ alloy::sol! {
         /// Return the total staked amount for a given validator.
         function totalStakedByValidator(uint32 validator) external view returns (uint256);
 
-        /// Transfers `tokenId` token from `from` to `to`. WARNING: Note that the caller is responsible to confirm that the recipient is capable of receiving ERC-721 or else they may be permanently lost. Usage of {safeTransferFrom} prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability. Requirements: - `from` cannot be the zero address. - `to` cannot be the zero address. - `tokenId` token must be owned by `from`. - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}. Emits a {Transfer} event.
+        /// Transfers `tokenId` token from `from` to `to`.
+        /// \*
+        /// \* WARNING: Note that the caller is responsible to confirm that the recipient is capable of receiving ERC-721
+        /// \* or else they may be permanently lost. Usage of {safeTransferFrom} prevents loss, though the caller must
+        /// \* understand this adds an external call which potentially creates a reentrancy vulnerability.
+        /// \*
+        /// \* Requirements:
+        /// \*
+        /// \* - `from` cannot be the zero address.
+        /// \* - `to` cannot be the zero address.
+        /// \* - `tokenId` token must be owned by `from`.
+        /// \* - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+        /// \*
+        /// \* Emits a {Transfer} event.
+        ///
         function transferFrom(address from, address to, uint256 tokenId) external;
 
         function undelegate(uint256 tokenId, uint256 wrId, uint256 undelegateAmount) external;
@@ -273,9 +352,9 @@ alloy::sol! {
 
         function withdraw(uint256 tokenId, uint256 wrId) external;
 
-        /// Complete a matured withdrawal and forward the native tokens directly to `recipient`.
+        /// Complete a matured withdrawal and forward the native tokens directly to `recipient`.         supply a partial amount. `recipient` must be non-zero.
         ///
-        /// The amount is determined by DiesisStaking's stored unstake request; callers cannot         supply a partial amount. `recipient` must be non-zero.
+        /// The amount is determined by DiesisStaking's stored unstake request; callers cannot
         function withdrawTo(uint256 tokenId, uint256 wrId, address recipient) external;
     }
 }

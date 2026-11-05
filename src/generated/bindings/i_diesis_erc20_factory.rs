@@ -33,9 +33,9 @@ alloy::sol! {
 
         event TemplateUpdated(bytes32 newBytecodeHash, uint64 unlockBlock);
 
-        /// Deploy a new ERC-20 at the deterministic address.
+        /// Deploy a new ERC-20 at the deterministic address.      has already been used, with `InvalidSymbolLength` or `InvalidSupply`      on parameter validation, and with `FactoryCallFailed` for any other      precompile-side failure.
         ///
-        /// Reverts with `DuplicateDeployment` if the `(deployer, symbol)` pair      has already been used, with `InvalidSymbolLength` or `InvalidSupply`      on parameter validation, and with `FactoryCallFailed` for any other      precompile-side failure.External callers must equal `params.deployer`.
+        /// Reverts with `DuplicateDeployment` if the `(deployer, symbol)` pairExternal callers must equal `params.deployer`.
         ///
         /// # Arguments
         ///
@@ -46,19 +46,19 @@ alloy::sol! {
         /// - `tokenAddress`: The deterministically derived token address.
         function deploy(DeployParams calldata params) external returns (address tokenAddress);
 
-        /// Execute the pending template update if its timelock has elapsed.
+        /// Execute the pending template update if its timelock has elapsed. Reverts with `TemplateUpdateLocked` if invoked before the unlock block      or if no proposal is pending.
         ///
-        /// Execution is permissionless and rechecks embedded artifact availability. Reverts with `TemplateUpdateLocked` if invoked before the unlock block      or if no proposal is pending.
+        /// Execution is permissionless and rechecks embedded artifact availability.
         function executeTemplateUpdate() external;
 
-        /// Predict the address the factory will deploy for `(deployer, symbol)`.
+        /// Predict the address the factory will deploy for `(deployer, symbol)`.      where `salt = keccak256(deployer || symbol)` and `initCode` is the pinned      template constructor bytecode wrapping `(name, symbol, initialSupply, deployer)`.
         ///
-        /// The address is `keccak256(0xFF || factory || salt || keccak256(initCode))[12:]`      where `salt = keccak256(deployer || symbol)` and `initCode` is the pinned      template constructor bytecode wrapping `(name, symbol, initialSupply, deployer)`.
+        /// The address is `keccak256(0xFF || factory || salt || keccak256(initCode))[12:]`
         function predictAddress(address deployer, bytes11 symbol) external view returns (address);
 
-        /// Propose a new template bytecode hash. Subject to a 604,800-block delay.
+        /// Propose a new template bytecode hash. Subject to a 604,800-block delay. Multiple proposals overwrite the pending hash and reset the block delay.
         ///
-        /// The current Config owner must propose a runtime embedded in this node build. Multiple proposals overwrite the pending hash and reset the block delay.
+        /// The current Config owner must propose a runtime embedded in this node build.
         function proposeTemplateUpdate(bytes32 newHash) external;
 
         /// Read the keccak256 of the currently pinned template runtime bytecode.

@@ -38,9 +38,9 @@ alloy::sol! {
 
         event PositionCollateralAdjusted(bytes32 indexed marketId, address indexed trader, int256 collateralDelta, uint256 newClaim);
 
-        /// Add or remove isolated margin on the caller's position.
+        /// Add or remove isolated margin on the caller's position.      available settlement balance into the position's isolated margin; a      negative one releases it. Reductions are consensus-guarded and revert      when they would leave the position below maintenance margin. Emits      {IsolatedMarginAdjusted}.
         ///
-        /// A positive `marginDelta` locks quote collateral from the caller's      available settlement balance into the position's isolated margin; a      negative one releases it. Reductions are consensus-guarded and revert      when they would leave the position below maintenance margin. Emits      {IsolatedMarginAdjusted}.
+        /// A positive `marginDelta` locks quote collateral from the caller's
         ///
         /// # Arguments
         ///
@@ -59,17 +59,17 @@ alloy::sol! {
         /// Cancel an owned V1 order and return all unused canonical margin.
         function cancelPerpOrderV1(bytes32 orderId) external;
 
-        /// Commit one system-owned opposite-side fill through canonical clearing.
+        /// Commit one system-owned opposite-side fill through canonical clearing.      maker/taker fees and persistent frontier proofs, then commits the      PreparedClearingTransactionV1 and both order consumptions under one      outer EVM checkpoint. The lower order ID is the canonical maker.
         ///
-        /// Reads and validates both stored V1 orders, derives deterministic      maker/taker fees and persistent frontier proofs, then commits the      PreparedClearingTransactionV1 and both order consumptions under one      outer EVM checkpoint. The lower order ID is the canonical maker.
+        /// Reads and validates both stored V1 orders, derives deterministic
         function executePerpTradeV1(bytes32 makerOrderId, bytes32 takerOrderId, uint256 fillPrice, uint256 fillQty) external returns (bytes32 clearingTransactionId);
 
         /// Permissionlessly expire a GTD order after its canonical deadline.
         function expirePerpOrderV1(bytes32 orderId) external;
 
-        /// Finalize the exact stored snapshot of one closed fee epoch.
+        /// Finalize the exact stored snapshot of one closed fee epoch.      declaration prevents public ABI drift before that implementation.
         ///
-        /// Native queue/accounting behavior is introduced by X4b M3. This      declaration prevents public ABI drift before that implementation.
+        /// Native queue/accounting behavior is introduced by X4b M3. This
         function finalizePerpFeeEpochV2(bytes32 marketId, uint64 epoch, bytes32 snapshotHash) external;
 
         /// Read one trader's quote-denominated isolated margin for a market.
@@ -78,37 +78,37 @@ alloy::sol! {
         /// Read one trader's canonical perpetual position for a market.
         function getPosition(address trader, bytes32 marketId) external view returns (PackedPosition memory position);
 
-        /// Encode the shared bounded V2 action call for future Lane B use.
+        /// Encode the shared bounded V2 action call for future Lane B use.      remains protocol-gated until the Lane B activation revision.      `resultHash` commits to the original bytes and every ordered action outcome.
         ///
-        /// The ABI is frozen for tooling parity, but perpetual V2 execution      remains protocol-gated until the Lane B activation revision.      `resultHash` commits to the original bytes and every ordered action outcome.
+        /// The ABI is frozen for tooling parity, but perpetual V2 execution
         function submitExchangeActionsV2(bytes calldata encodedActions) external returns (bytes32 resultHash, uint16 acceptedCount, uint16 rejectedCount);
 
-        /// Submit one versioned perpetual order funded from canonical settlement custody.
+        /// Submit one versioned perpetual order funded from canonical settlement custody.      reserve from GlobalUserAvailable to the market's UserMargin ledger.      `price` is a nonzero integer tick and price-protected market orders      use it as their worst acceptable execution price. `expiry == 0`      selects GTC; otherwise expiry is a Unix timestamp in seconds.      V1 requires `flags == 0`; reduce-only and advanced time-in-force      semantics are reserved for the bounded V2 action surface.
         ///
-        /// The call atomically moves initial margin plus the deterministic fee      reserve from GlobalUserAvailable to the market's UserMargin ledger.      `price` is a nonzero integer tick and price-protected market orders      use it as their worst acceptable execution price. `expiry == 0`      selects GTC; otherwise expiry is a Unix timestamp in seconds.      V1 requires `flags == 0`; reduce-only and advanced time-in-force      semantics are reserved for the bounded V2 action surface.
+        /// The call atomically moves initial margin plus the deterministic fee
         function submitPerpOrderV1(bytes32 marketId, uint8 side, uint8 orderType, uint256 price, uint256 amount, uint8 flags, uint8 marginType, uint64 expiry) external returns (bytes32 orderId);
 
-        /// Execute a sponsored bounded V2 action batch on behalf of a signer.
+        /// Execute a sponsored bounded V2 action batch on behalf of a signer.      recovered EIP-712 signer of `signedEnvelope` is the trading      principal. The precompile verifies the signature, consumes the      signer's canonical per-trader nonce-bitmap bit, and executes the      exact same canonical action bytes, admission policy, replay      protection, clearing journal, and logs as the direct      `submitExchangeActionsV2` path. Later tasks implement verification      and execution; this freezes the release selector and wire shape.        perpetual-actions envelope.
         ///
-        /// The relayer is the outer transaction sender and pays fees; the      recovered EIP-712 signer of `signedEnvelope` is the trading      principal. The precompile verifies the signature, consumes the      signer's canonical per-trader nonce-bitmap bit, and executes the      exact same canonical action bytes, admission policy, replay      protection, clearing journal, and logs as the direct      `submitExchangeActionsV2` path. Later tasks implement verification      and execution; this freezes the release selector and wire shape.
+        /// The relayer is the outer transaction sender and pays fees; the
         ///
         /// # Arguments
         ///
-        /// - `signedEnvelope`: ABI `bytes` containing the canonical signed        perpetual-actions envelope.
+        /// - `signedEnvelope`: ABI `bytes` containing the canonical signed
         ///
         /// # Returns
         ///
         /// - `batchId`: Canonical identifier committing to the executed batch.
         function submitSignedPerpActionsV2(bytes calldata signedEnvelope) external returns (bytes32 batchId);
 
-        /// Advance the canonical scaled mark through solvency-frontier segments.
+        /// Advance the canonical scaled mark through solvency-frontier segments.      persists the original target until liquidation resolves the root.
         ///
-        /// System-only. If a root is reached, the market enters Protection and      persists the original target until liquidation resolves the root.
+        /// System-only. If a root is reached, the market enters Protection and
         function updatePerpMarkV1(bytes32 marketId, uint256 markPrice) external;
 
-        /// Persist one validator-attested oracle round for a market.
+        /// Persist one validator-attested oracle round for a market.      timestamps, an active `sourceSetHash`, and a canonical `evidenceHash`      commitment. The call atomically writes the canonical index/mark,      round, observed-at, source-set/evidence commitments, and derived      circuit-breaker/recovery state; there is no operator path that      bypasses freshness or evidence. Later tasks implement the transition;      this freezes the release selector and argument layout.
         ///
-        /// System-only. Accepts strictly increasing rounds and observed-at      timestamps, an active `sourceSetHash`, and a canonical `evidenceHash`      commitment. The call atomically writes the canonical index/mark,      round, observed-at, source-set/evidence commitments, and derived      circuit-breaker/recovery state; there is no operator path that      bypasses freshness or evidence. Later tasks implement the transition;      this freezes the release selector and argument layout.
+        /// System-only. Accepts strictly increasing rounds and observed-at
         ///
         /// # Arguments
         ///

@@ -28,9 +28,9 @@ alloy::sol! {
 
         event Withdrawal(address indexed user, address indexed token, uint256 amount);
 
-        /// Accept exact authorization terms as the session key before principal activation.
+        /// Accept exact authorization terms as the session key before principal activation.      This call changes neither sender identity nor the principal's active-session count.
         ///
-        /// One-use consent binds chain, endpoint, principal, key, terms and next generation.      This call changes neither sender identity nor the principal's active-session count.
+        /// One-use consent binds chain, endpoint, principal, key, terms and next generation.
         function acceptSessionKeyV2(address principal, uint256 actionScope, uint64 validUntil, uint256 maxNotionalOrSpend, bytes32 allowedMarketsMask) external returns (uint64 generation);
 
         /// Activate one scoped V2 session after its key accepted these exact terms.
@@ -44,14 +44,14 @@ alloy::sol! {
 
         function cancelOrderNonce(uint256 nonce) external;
 
-        /// Credit a generic ERC-20 settlement balance on behalf of the router.
+        /// Credit a generic ERC-20 settlement balance on behalf of the router. router has already pulled `amount` of `token` into its own custody, so this selector only mutates the ledger — it never touches token storage. Reverts on a zero `user`, zero `token`, or zero `amount`.
         ///
-        /// Callable only by the fixed `DiesisSettlementRouter` address. The router has already pulled `amount` of `token` into its own custody, so this selector only mutates the ledger — it never touches token storage. Reverts on a zero `user`, zero `token`, or zero `amount`.
+        /// Callable only by the fixed `DiesisSettlementRouter` address. The
         function creditRouterDeposit(address user, address token, uint256 amount) external;
 
-        /// Debit a generic ERC-20 settlement balance on behalf of the router.
+        /// Debit a generic ERC-20 settlement balance on behalf of the router. ledger debit runs before the router releases custody; a reverted token transfer rolls this mutation back atomically. Preserves the locked-balance invariant (`balance - locked >= amount`) and reverts on a zero `user`, zero `token`, or zero `amount`.
         ///
-        /// Callable only by the fixed `DiesisSettlementRouter` address. The ledger debit runs before the router releases custody; a reverted token transfer rolls this mutation back atomically. Preserves the locked-balance invariant (`balance - locked >= amount`) and reverts on a zero `user`, zero `token`, or zero `amount`.
+        /// Callable only by the fixed `DiesisSettlementRouter` address. The
         function debitRouterWithdrawal(address user, address token, uint256 amount) external;
 
         /// Move supported precompile-native tokens into the exchange settlement ledger.
@@ -70,9 +70,9 @@ alloy::sol! {
 
         function registerTradingKey(address tradingKey, uint64 validUntil, uint128 maxOrderNotional, bytes32 allowedMarketsMask, bool canWithdraw) external;
 
-        /// Principal or key may revoke an active session and advance its generation.
+        /// Principal or key may revoke an active session and advance its generation.      identity; explicit revocation releases the principal's retained capacity.
         ///
-        /// A key may also cancel its pending consent. Expiry restores direct sender      identity; explicit revocation releases the principal's retained capacity.
+        /// A key may also cancel its pending consent. Expiry restores direct sender
         function revokeSessionKeyV2(address sessionKey) external returns (uint64 generation);
 
         function revokeTradingKey(address tradingKey) external;

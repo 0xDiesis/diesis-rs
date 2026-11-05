@@ -33,14 +33,14 @@ alloy::sol! {
         /// Read the public bond record for `marketId`.
         function getBond(bytes32 marketId) external view returns (BondInfo memory);
 
-        /// Post the operator bond for `marketId` with `msg.value` DS.
+        /// Post the operator bond for `marketId` with `msg.value` DS.      exists for `marketId`.
         ///
-        /// `msg.value` must equal exactly 50,000 DS. Reverts if a bond already      exists for `marketId`.
+        /// `msg.value` must equal exactly 50,000 DS. Reverts if a bond already
         function postBond(bytes32 marketId) external payable;
 
-        /// Request voluntary release of the bond.
+        /// Request voluntary release of the bond.      must be resolved before the operator can finalize.
         ///
-        /// Subject to a 30-day timelock. Pending claims against the backstop      must be resolved before the operator can finalize.
+        /// Subject to a 30-day timelock. Pending claims against the backstop
         function requestRelease(bytes32 marketId) external;
     }
 }

@@ -28,9 +28,9 @@ alloy::sol! {
 
         event StopOrderTriggered(bytes32 indexed orderId, bytes32 indexed marketId, address indexed trader, uint256 triggerPrice, uint256 activationPrice);
 
-        /// Amend an active order owned by the caller.
+        /// Amend an active order owned by the caller.      id keeps user/market indexes and signed-intent nonce mappings stable.      Requires the original market to still be active and new price/amount      to be nonzero.
         ///
-        /// Cancel-and-replace preserving the original `orderId`. Preserving the      id keeps user/market indexes and signed-intent nonce mappings stable.      Requires the original market to still be active and new price/amount      to be nonzero.
+        /// Cancel-and-replace preserving the original `orderId`. Preserving the
         ///
         /// # Arguments
         ///
@@ -44,9 +44,9 @@ alloy::sol! {
         /// - `newOrderId`: Equal to `orderId`; retained for ABI compatibility with cancel-and-replace clients.
         function amendOrder(bytes32 orderId, uint256 newPrice, uint256 newAmount, uint8 newFlags) external returns (bytes32 newOrderId);
 
-        /// Cancel an active order owned by the caller.
+        /// Cancel an active order owned by the caller.      Historical user and market order lists may still contain the order id;      clients should filter by order existence. Cancelling a dormant signed      stop removes its bounded stop-index membership and releases its lock.
         ///
-        /// Releases the order's locked collateral and clears the order storage.      Historical user and market order lists may still contain the order id;      clients should filter by order existence. Cancelling a dormant signed      stop removes its bounded stop-index membership and releases its lock.
+        /// Releases the order's locked collateral and clears the order storage.
         ///
         /// # Arguments
         ///
@@ -63,9 +63,9 @@ alloy::sol! {
         /// System-only. Emits one `OrderFilled` event per side and clears completed orders.
         function executeSpotTrade(bytes32 makerOrderId, bytes32 takerOrderId, uint256 fillPrice, uint256 fillQty) external returns (uint256 filledQty, uint256 executionPrice);
 
-        /// Finalize an ended opening auction and return the market to active trading.
+        /// Finalize an ended opening auction and return the market to active trading.      residual live orders into the continuous BBO cache, emits      `BatchAuctionCleared`, and stores final auction totals.
         ///
-        /// System-only. Runs the batch auction, settles crossing orders, restores      residual live orders into the continuous BBO cache, emits      `BatchAuctionCleared`, and stores final auction totals.
+        /// System-only. Runs the batch auction, settles crossing orders, restores
         function finalizeOpeningAuction(bytes32 marketId) external returns (uint256 clearingPrice, uint256 totalVolume);
 
         /// Return the best ask stored in the on-chain BBO cache.
@@ -95,9 +95,9 @@ alloy::sol! {
         /// Return stored opening-auction state for a market.
         function getOpeningAuction(bytes32 marketId) external view returns (uint64 startBlock, uint64 endBlock, uint256 referencePrice, bool finalized, uint256 clearingPrice, uint256 totalVolume);
 
-        /// Return on-chain book depth.
+        /// Return on-chain book depth.      are zero-filled; full multi-level depth is available over exchange RPC.
         ///
-        /// Runtime returns real best-bid/best-ask data at level 0 only. Levels 1+      are zero-filled; full multi-level depth is available over exchange RPC.
+        /// Runtime returns real best-bid/best-ask data at level 0 only. Levels 1+
         function getOrderBookDepth(bytes32 marketId, uint8 levels) external view returns (uint256[] memory bidPrices, uint256[] memory bidAmounts, uint256[] memory askPrices, uint256[] memory askAmounts);
 
         /// Return the most recent order IDs a user placed in a market.
@@ -105,19 +105,19 @@ alloy::sol! {
         /// Cancelled or filled orders may remain in the list; clients should filter by order existence.
         function getUserOrders(address user, bytes32 marketId) external view returns (bytes32[] memory orderIds);
 
-        /// Start an opening auction for an active empty market.
+        /// Start an opening auction for an active empty market.      Historical cleared order ids do not block auction start, but the call      charges gas for scanning those historical ids.
         ///
-        /// System-only. The market must be active and have no live open orders.      Historical cleared order ids do not block auction start, but the call      charges gas for scanning those historical ids.
+        /// System-only. The market must be active and have no live open orders.
         function startOpeningAuction(bytes32 marketId, uint64 startBlock, uint64 endBlock, uint256 referencePrice) external;
 
-        /// Submit one strictly bounded canonical V2 action batch.
+        /// Submit one strictly bounded canonical V2 action batch.      contain no action-level signature or replay nonce. `resultHash`      commits to the original bytes and every ordered action outcome.
         ///
-        /// The ordinary EVM caller authenticates the batch. The encoded bytes      contain no action-level signature or replay nonce. `resultHash`      commits to the original bytes and every ordered action outcome.
+        /// The ordinary EVM caller authenticates the batch. The encoded bytes
         function submitExchangeActionsV2(bytes calldata encodedActions) external returns (bytes32 resultHash, uint16 acceptedCount, uint16 rejectedCount);
 
-        /// Place a limit order in an active spot market.
+        /// Place a limit order in an active spot market.      settlement deposit flag, and enough available collateral. Buy orders      lock quote collateral equal to `priceTicks * amountLots`; sell orders      lock base collateral equal to `amountLots`.
         ///
-        /// Requires an active market, `priceTicks > 0`, `amountLots > 0`, a prior      settlement deposit flag, and enough available collateral. Buy orders      lock quote collateral equal to `priceTicks * amountLots`; sell orders      lock base collateral equal to `amountLots`.
+        /// Requires an active market, `priceTicks > 0`, `amountLots > 0`, a prior
         ///
         /// # Arguments
         ///
@@ -132,9 +132,9 @@ alloy::sol! {
         /// - `orderId`: Canonical order identifier.
         function submitLimitOrder(bytes32 marketId, uint8 side, uint256 priceTicks, uint256 amountLots, uint8 flags) external returns (bytes32 orderId);
 
-        /// Submit a market order intent against the active continuous book.
+        /// Submit a market order intent against the active continuous book.      `filledAmount` is currently zero; economic fills are emitted as      canonical `OrderFilled` events when matching settles.
         ///
-        /// Requires an active market and `amountLots > 0`. The returned      `filledAmount` is currently zero; economic fills are emitted as      canonical `OrderFilled` events when matching settles.
+        /// Requires an active market and `amountLots > 0`. The returned
         ///
         /// # Arguments
         ///
@@ -148,9 +148,9 @@ alloy::sol! {
         /// - `orderId`: Canonical order identifier.
         function submitMarketOrder(bytes32 marketId, uint8 side, uint256 amountLots) external returns (uint256 filledAmount, bytes32 orderId);
 
-        /// Submit a signed request to cancel all active orders in one market.
+        /// Submit a signed request to cancel all active orders in one market.      signature binds trader, market, expiry, and replay nonce. The call      scans the trader's historical user-order list for `marketId`, charges      per scanned order, cancels currently active matching orders, and rolls      back nonce consumption if cancellation fails.
         ///
-        /// The payload is a JSON-encoded signed cancel-all spot intent. The      signature binds trader, market, expiry, and replay nonce. The call      scans the trader's historical user-order list for `marketId`, charges      per scanned order, cancels currently active matching orders, and rolls      back nonce consumption if cancellation fails.
+        /// The payload is a JSON-encoded signed cancel-all spot intent. The
         ///
         /// # Arguments
         ///
@@ -161,18 +161,18 @@ alloy::sol! {
         /// - `cancelled`: Number of active orders cancelled.
         function submitSignedCancelAllSpotIntent(bytes calldata signedCancelAllJson) external returns (uint256 cancelled);
 
-        /// Submit a signed order or cancel intent.
+        /// Submit a signed order or cancel intent.      submitted by any relayer; the precompile verifies the signature and      uses the signed trader as the effective caller. Trading-key signed      order and cancel intents are constrained by the key's market mask and      notional limit. This ABI intentionally declares no return value because      order and cancel variants have different raw return data. Clients that      need the returned order id should either call direct order methods or      use a low-level call and decode the variant-specific bytes.
         ///
-        /// The payload is a JSON-encoded `SignedIntent`. Order intents may be      submitted by any relayer; the precompile verifies the signature and      uses the signed trader as the effective caller. Trading-key signed      order and cancel intents are constrained by the key's market mask and      notional limit. This ABI intentionally declares no return value because      order and cancel variants have different raw return data. Clients that      need the returned order id should either call direct order methods or      use a low-level call and decode the variant-specific bytes.
+        /// The payload is a JSON-encoded `SignedIntent`. Order intents may be
         ///
         /// # Arguments
         ///
         /// - `signedIntentJson`: ABI `bytes` containing UTF-8 JSON for the signed intent.
         function submitSignedSpotIntent(bytes calldata signedIntentJson) external;
 
-        /// Activate dormant stops triggered by the market's last settled trade.
+        /// Activate dormant stops triggered by the market's last settled trade.      canonical last-trade price rises to or above its trigger price; a sell      stop triggers when it falls to or below. `maxOrders` is clamped to the      protocol activation limit and to the call's gas headroom; the call      never triggers from an oracle, RPC quote, or user-supplied      observation. Each activated stop inserts into the live book and matches      at its limit/protection price (a stop-market executes as an IOC      protected limit) and emits a `StopOrderTriggered` event. A paused      market or a market with no settled trade activates nothing.
         ///
-        /// Permissionless bounded continuation. A buy stop triggers when the      canonical last-trade price rises to or above its trigger price; a sell      stop triggers when it falls to or below. `maxOrders` is clamped to the      protocol activation limit and to the call's gas headroom; the call      never triggers from an oracle, RPC quote, or user-supplied      observation. Each activated stop inserts into the live book and matches      at its limit/protection price (a stop-market executes as an IOC      protected limit) and emits a `StopOrderTriggered` event. A paused      market or a market with no settled trade activates nothing.
+        /// Permissionless bounded continuation. A buy stop triggers when the
         ///
         /// # Arguments
         ///

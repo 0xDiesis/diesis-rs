@@ -139,6 +139,7 @@ alloy::sol! {
         function operatorTakeRate() external view returns (uint256);
 
         /// Returns the address of the current owner.
+        ///
         function owner() external view returns (address);
 
         /// Minimum rolling-average uptime before PERFORMANCE\_FAULT deactivation \[0-90%\]
@@ -147,7 +148,12 @@ alloy::sol! {
         /// Number of checkpoints in the rolling average uptime window \[10-87,600\]
         function reliabilitySampleCheckpoints() external view returns (uint32);
 
-        /// Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.
+        /// Leaves the contract without owner. It will not be possible to call
+        /// \* `onlyOwner` functions. Can only be called by the current owner.
+        /// \*
+        /// \* NOTE: Renouncing ownership will leave the contract without an owner,
+        /// \* thereby disabling any functionality that is only available to the owner.
+        ///
         function renounceOwnership() external;
 
         /// Base staking reward per second in tokens \[0-0.27 tokens/sec\]
@@ -184,7 +190,9 @@ alloy::sol! {
         /// Fraction of extra reward allocations that are burned \[0-100%\]
         function surplusRewardBurnCut() external view returns (uint256);
 
-        /// Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.
+        /// Transfers ownership of the contract to a new account (`newOwner`).
+        /// \* Can only be called by the current owner.
+        ///
         function transferOwnership(address newOwner) external;
 
         /// Fraction of tx fees sent to treasury each checkpoint \[0-100%\]; networkBurnCut + treasuryCut ≤ 100%
