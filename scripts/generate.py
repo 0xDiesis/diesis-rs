@@ -2,7 +2,7 @@
 """Regenerate the Rust bindings, addresses, chains, and contracts table.
 
 The bindings, including their mod.rs, come from abi-typegen's `rust` target
-(0.8.0 or newer), which emits one alloy `sol!` contract and JSON ABI per
+(0.9.1 or newer), which emits one alloy `sol!` contract and JSON ABI per
 public contract. Addresses, chains,
 and the contracts table come from the vendored canonical.json, which is a copy
 of ../diesis-js/canonical.json.
@@ -18,7 +18,6 @@ canonical.json source (default ../diesis-js/canonical.json).
 
 from __future__ import annotations
 
-from typegen_inputs import ordered_artifacts
 
 import argparse
 import filecmp
@@ -105,7 +104,7 @@ def canonical_source() -> Path:
     return Path(override).resolve() if override else (REPO_ROOT / "../diesis-js/canonical.json").resolve()
 
 
-MIN_TYPEGEN = (0, 8, 0)
+MIN_TYPEGEN = (0, 9, 1)
 
 
 def typegen_path() -> Path:
@@ -128,23 +127,23 @@ def run_typegen(out_dir: Path) -> None:
     if not artifacts.is_dir():
         fail(f"contract artifacts not found at {artifacts} (set DIESIS_CONTRACTS_DIR)")
     names = [contract for _, contract, _ in PUBLIC_CONTRACTS]
-    with ordered_artifacts(artifacts, names) as inputs:
-        subprocess.run(
-            [
-                str(typegen),
-                "generate",
-                "--artifacts",
-                str(inputs),
-                "--out",
-                str(out_dir),
-                "--target",
-                "rust",
-                "--contracts",
-                ",".join(names),
-            ],
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
+    inputs = artifacts
+    subprocess.run(
+        [
+            str(typegen),
+            "generate",
+            "--artifacts",
+            str(inputs),
+            "--out",
+            str(out_dir),
+            "--target",
+            "rust",
+            "--contracts",
+            ",".join(names),
+        ],
+        check=True,
+        stdout=subprocess.DEVNULL,
+    )
     produced = sorted(p.name for p in out_dir.iterdir())
     expected = sorted([f"{snake_case(name)}.rs" for name in names] + ["mod.rs"])
     if produced != expected:

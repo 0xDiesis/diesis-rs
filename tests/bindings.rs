@@ -116,7 +116,10 @@ fn embedded_abis_match_artifacts() {
         for overloads in expected.functions.values_mut() {
             overloads.sort_by_key(|function| function.selector());
         }
-        let embedded: JsonAbi = serde_json::from_str(json).unwrap();
+        let mut embedded: JsonAbi = serde_json::from_str(json).unwrap();
+        for overloads in embedded.functions.values_mut() {
+            overloads.sort_by_key(|function| function.selector());
+        }
         assert_eq!(
             embedded, expected,
             "{name} is stale, run scripts/generate.py"

@@ -236,7 +236,7 @@ SDK's `canonical.json`. One script rebuilds it, and the same script checks that
 nothing is stale.
 
 **Details.** `scripts/generate.py` needs Python 3 and nothing else. It runs
-abi-typegen's `rust` target (0.8.0 or newer) over the compiled contracts,
+abi-typegen's `rust` target (0.9.1 or newer) over the compiled contracts,
 writes its output, including `mod.rs`, to `src/generated/bindings/`, copies `../diesis-js/canonical.json` into the repo,
 and writes the addresses, chains, and contract table from it. `--check`
 rebuilds into a temporary directory and fails if any generated file or
