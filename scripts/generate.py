@@ -155,7 +155,7 @@ def addresses_rs(canonical: dict) -> str:
     lines = [
         HEADER,
         "//! System contract and precompile addresses from canonical.json.\n\n",
-        "use alloy::primitives::{address, Address};\n\n",
+        "use alloy::primitives::{Address, address};\n\n",
     ]
     for name, value in entries.items():
         lines.append(f"/// `{name}` from canonical.json.\n")
@@ -215,7 +215,7 @@ def contracts_rs(canonical: dict) -> str:
         HEADER,
         "//! Public system contracts at fixed addresses, keyed like the TypeScript\n",
         "//! SDK's `diesisContracts`.\n\n",
-        "use crate::{addresses, bindings, Contract};\n\n",
+        "use crate::{Contract, addresses, bindings};\n\n",
     ]
     for key, contract, address in fixed:
         if address not in addresses:

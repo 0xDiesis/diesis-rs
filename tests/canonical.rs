@@ -1,7 +1,7 @@
 //! Checks addresses, chains, and the contracts table against canonical.json.
 
 use alloy::primitives::Address;
-use diesis::{addresses, chains, contracts, Chain, Contract, CANONICAL_JSON};
+use diesis::{CANONICAL_JSON, Chain, Contract, addresses, chains, contracts};
 use serde_json::Value;
 
 fn canonical() -> Value {

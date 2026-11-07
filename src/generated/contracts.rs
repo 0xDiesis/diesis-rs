@@ -2,7 +2,7 @@
 //! Public system contracts at fixed addresses, keyed like the TypeScript
 //! SDK's `diesisContracts`.
 
-use crate::{addresses, bindings, Contract};
+use crate::{Contract, addresses, bindings};
 
 /// `IDiesisMarkets` at [`addresses::DIESIS_MARKETS`].
 pub const MARKETS: Contract = Contract {

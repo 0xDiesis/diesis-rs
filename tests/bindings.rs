@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use alloy::json_abi::JsonAbi;
-use alloy::primitives::{address, Address, U256};
+use alloy::primitives::{Address, U256, address};
 use alloy::sol_types::{SolCall, SolEvent};
 use diesis::bindings::*;
 use diesis::contracts::{self, PUBLIC_CONTRACT_NAMES};
